@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
+import "hardhat/console.sol";
 abstract contract ContextMixin {
     function msgSender()
         internal
@@ -212,7 +212,7 @@ contract NativeMetaTransaction is EIP712Base {
     }
 }
 
-contract Dota3 is ERC721URIStorage, ERC721Enumerable, ContextMixin, NativeMetaTransaction, Ownable {
+contract DotaBatch7 is ERC721URIStorage, ERC721Enumerable, ContextMixin, NativeMetaTransaction, Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -231,15 +231,18 @@ contract Dota3 is ERC721URIStorage, ERC721Enumerable, ContextMixin, NativeMetaTr
         return ContextMixin.msgSender();
     }    
 
-    function awardItem(address player, string memory tokenURIlink) public onlyOwner returns (uint256)                
+    function awardItem(address player, string[] memory tokenURIlink) public onlyOwner //returns (uint256)                
     {
+        for (uint i = 0; i < tokenURIlink.length; i++) {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
-        _mint(player, newItemId);
-        _setTokenURI(newItemId, tokenURIlink);
-
-        return newItemId;
+        _safeMint(player, newItemId);
+        _setTokenURI(newItemId, tokenURIlink[i]);
+        console.log('Solidity URI: ',tokenURIlink[i]);
+        console.log('Solidity ID: ',newItemId);
+        //return newItemId;
+        }
     }
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721,ERC721URIStorage) returns (string memory){
